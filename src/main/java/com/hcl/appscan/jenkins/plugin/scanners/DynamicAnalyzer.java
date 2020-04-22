@@ -134,16 +134,23 @@ public class DynamicAnalyzer extends Scanner {
 	}
 	
 	public String getOptimization() {
-		if(m_optimization != null) { //Backward Compatibility
-			if(m_optimization.equals(NORMAL)) {
+		return m_optimization;
+	}
+
+	public String isTestOptimization(String testOptimizationLevel) {
+		if (m_optimization != null) {
+			if(m_optimization.equals(NORMAL)) { //Backward Compatibility
 				m_optimization = NO_OPTIMIZATION;
 			} else if(m_optimization.equals(OPTIMIZED)) {
 				m_optimization = FAST;
 			}
+			return  m_optimization.equalsIgnoreCase(testOptimizationLevel) ? "true" : "";
+		} else if (testOptimizationLevel.equals(FAST)) { //Default
+			return "true";
 		}
-		return m_optimization;
+		return "";
 	}
-	
+
 	@DataBoundSetter
 	public void setExtraField(String extraField) {
 		m_extraField = extraField;
@@ -188,17 +195,8 @@ public class DynamicAnalyzer extends Scanner {
 			model.add(Messages.option_production(), PRODUCTION);
 			return model;
 		}
-		
-		public ListBoxModel doFillOptimizationItems() {
-			ListBoxModel model = new ListBoxModel();
-			model.add(Messages.option_fast(), FAST);
-			model.add(Messages.option_faster(), FASTER);
-			model.add(Messages.option_fastest(), FASTEST);
-			model.add(Messages.option_nooptimization(), NO_OPTIMIZATION);
-			return model;
-		}
-		
-    	public ListBoxModel doFillPresenceIdItems(@RelativePath("..") @QueryParameter String credentials, @AncestorInPath ItemGroup<?> context) { //$NON-NLS-1$
+
+		public ListBoxModel doFillPresenceIdItems(@RelativePath("..") @QueryParameter String credentials, @AncestorInPath ItemGroup<?> context) { //$NON-NLS-1$
     		IAuthenticationProvider authProvider = new JenkinsAuthenticationProvider(credentials, context);
     		Map<String, String> presences = new CloudPresenceProvider(authProvider).getPresences();
     		ListBoxModel model = new ListBoxModel();
